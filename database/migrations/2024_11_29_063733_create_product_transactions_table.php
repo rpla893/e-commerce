@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('post_code');
             $table->text('address');
             $table->string('shoes_size');
-            $table->decimal('quantity', 10, 2);
+            $table->string('quantity', 10, 2);
             $table->decimal('sub_total_amount', 15, 2);
             $table->decimal('grand_total_amount', 15, 2);
             $table->decimal('discount_amount', 15, 2)->default(0);

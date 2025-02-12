@@ -243,6 +243,11 @@ class ProductTransactionResource extends Resource
                 Tables\Columns\TextColumn::make('custom_id')->label('Custom ID')->sortable()->searchable(),
                 Tables\Columns\ImageColumn::make('shoes.thumbnail')
                     ->label('product'),
+                Tables\Columns\TextColumn::make('quantity')
+                    ->label('Total Barang'),
+                Tables\Columns\TextColumn::make('grand_total_amount')
+                    ->money('IDR', locale: 'id')
+                    ->label('Total'),
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('booking_trx_id')->searchable()->label('Booking Id'),
                 Tables\Columns\TextColumn::make('payment_method')
@@ -261,8 +266,8 @@ class ProductTransactionResource extends Resource
                     ->label('Verification')
                     ->formatStateUsing(fn ($state) => $state ? 'Verified' : 'Pending')
                     ->colors([
-                        'Verified' => 'success',
-                        'Pending' => 'warning',
+                        'success' => fn ($state) => $state == 1,
+                        'warning' => fn ($state) => $state == 0,
                     ]),
 
                 Tables\Columns\TextColumn::make('barcode')

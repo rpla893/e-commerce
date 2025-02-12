@@ -125,6 +125,7 @@ class ShoesResource extends Resource
                     ->label('Category'),
                 Tables\Columns\TextColumn::make('brand.name')
                     ->label('Brand'),
+                Tables\Columns\TextColumn::make('stock'),
                 Tables\Columns\ImageColumn::make('thumbnail')
                     ->circular(),
                 Tables\Columns\IconColumn::make('is_popular')
@@ -164,10 +165,20 @@ class ShoesResource extends Resource
                 Tables\Actions\DeleteAction::make(),
 
                 Tables\Actions\Action::make('toggleStatus')
-                    ->label(fn (Shoes $record) => $record->status === 'active' ? 'Nonaktifkan' : 'Aktifkan')
-                    ->icon(fn (Shoes $record) => $record->status === 'active' ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
-                    ->color(fn (Shoes $record) => $record->status === 'active' ? 'danger' : 'success')
-                    ->action(fn(Shoes $record) => $record->update(['status' => $record->status === 'active' ? 'inactive' : 'active']))
+                ->label(fn (Shoes $record) => $record->status === 'active' ? 'Nonaktifkan' : 'Aktifkan')
+                ->icon(fn (Shoes $record) => $record->status === 'active' ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
+                ->color(fn (Shoes $record) => $record->status === 'active' ? 'danger' : 'success')
+                ->action(function (Shoes $record) {
+                    $newStatus = $record->status === 'active' ? 'inactive' : 'active';
+                    $record->update(['status' => $newStatus]);
+
+                    // Notifikasi saat status berubah
+                    \Filament\Notifications\Notification::make()
+                        ->title('Status Produk Diperbarui')
+                        ->body("Produk **{$record->name}** sekarang **" . ucfirst($newStatus) . "**.")
+                        ->success()
+                        ->send();
+                })
                     ->requiresConfirmation()
                     ->visible(fn(Shoes $record) => auth()->user()->hasRole('super_admin') && !$record->is_verified)
             ])

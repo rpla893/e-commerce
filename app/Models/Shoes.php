@@ -96,4 +96,13 @@ class Shoes extends Model
     {
         return $this->hasMany(ProductTransaction::class, 'shoes_id');
     }
+
+    // Di dalam model Shoes
+
+    public static function stock()
+    {
+        // Mengambil jumlah total stok dari semua sepatu
+        return self::sum('stock'); // Menjumlahkan seluruh nilai kolom 'stock' di tabel shoes
+    }
+
 }

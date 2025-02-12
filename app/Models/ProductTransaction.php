@@ -48,12 +48,29 @@ class ProductTransaction extends Model
     {
         parent::boot();
 
-        // Otomatis mengisi slug sebelum menyimpan data
+        // Otomatis mengisi slug dan custom_id sebelum menyimpan data
         static::saving(function ($transaction) {
             $transaction->slug = Str::slug($transaction->name);
             $transaction->custom_id = now()->format('dmY') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         });
+
+        // Event setelah transaksi dibuat (mengurangi stok)
+        static::created(function ($transaction) {
+            $shoes = $transaction->shoes;
+            if ($shoes) {
+                $shoes->decrement('stock', $transaction->quantity);
+            }
+        });
+
+        // Event jika transaksi dihapus (menambah stok)
+        static::deleted(function ($transaction) {
+            $shoes = $transaction->shoes;
+            if ($shoes) {
+                $shoes->increment('stock', $transaction->quantity);
+            }
+        });
     }
+
 
     /**
      * Generate a unique transaction ID
@@ -89,6 +106,11 @@ class ProductTransaction extends Model
     public function getVerificationStatusAttribute()
     {
         return $this->is_verified ? 'Verified' : 'Pending';
+    }
+
+    public function scopeGrandTotalAmount($query)
+    {
+        return $query->sum('grand_total_amount');
     }
 
 }
